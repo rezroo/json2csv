@@ -50,17 +50,22 @@ class Json2Csv(object):
             self.collection = outline['collection']
 
     def load(self, json_file):
-        self.process_each(json.load(json_file))
+        return self.process_each(json.load(json_file))
 
     def process_each(self, data):
         """Process each item of a json-loaded dict
         """
+        if data is None:
+            print "Null Input"
+            return -1
+
         if self.collection and self.collection in data:
             data = data[self.collection]
 
         for d in data:
             logging.info(d)
             self.rows.append(self.process_row(d))
+        return 0
 
     def process_row(self, item):
         """Process a row of json data against the key map
@@ -145,11 +150,9 @@ if __name__ == '__main__':
     else:
         loader = Json2Csv(key_map)
 
-    loader.load(args.json_file)
-
-    outfile = args.output_csv
-    if outfile is None:
-        fileName, fileExtension = os.path.splitext(args.json_file.name)
-        outfile = fileName + '.csv'
-
-    loader.write_csv(filename=outfile, make_strings=args.strings)
+    if loader.load(args.json_file) == 0:
+        outfile = args.output_csv
+        if outfile is None:
+            fileName, fileExtension = os.path.splitext(args.json_file.name)
+            outfile = fileName + '.csv'
+        loader.write_csv(filename=outfile, make_strings=args.strings)
